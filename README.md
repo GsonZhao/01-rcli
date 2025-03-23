@@ -1,1 +1,3 @@
 rcli
+
+rust command 
