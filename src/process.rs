@@ -2,6 +2,9 @@ use csv::Reader;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+use crate::OutputFormat;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
@@ -15,15 +18,28 @@ pub struct Player {
     pub kit: u32,
 }
 
-pub fn process_csv(input: &str, output: &str) -> Result<()> {
+pub fn process_csv(input: &str, output: &str, format: OutputFormat) -> Result<()> {
     let mut reader = Reader::from_path(input)?;
     let mut ret = Vec::with_capacity(128);
-    for result in reader.deserialize::<Player>() {
+
+    let headers = reader.headers()?.clone();
+
+    for result in reader.records() {
         let record = result?;
-        ret.push(record);
+        let json_value = headers.iter().zip(record.iter()).collect::<Value>();
+        ret.push(json_value);
     }
 
-    let json = serde_json::to_string_pretty(&ret)?;
-    std::fs::write(output, json)?;
+    let content = match format {
+        OutputFormat::Json => serde_json::to_string_pretty(&ret)?,
+        OutputFormat::Yaml => serde_yaml::to_string(&ret)?,
+        OutputFormat::Toml => {
+            // TOML不支持数组作为顶级结构，需要包装在对象中
+            let wrapper = std::collections::HashMap::from([("data".to_string(), ret)]);
+            toml::to_string(&wrapper)?
+        },
+    };
+
+    std::fs::write(output, content)?;
     Ok(())
 }

@@ -5,7 +5,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opts = Opts::parse();
     match opts.command {
         SubCommand::Csv(opts) => {
-            process_csv(&opts.input, &opts.output)?;
+            let output = if let Some(output) = opts.output {
+                output
+            } else {
+                format!("output.{}", opts.format)
+            };
+
+            process_csv(&opts.input, &output, opts.format)?;
             Ok(())
         }
     }
