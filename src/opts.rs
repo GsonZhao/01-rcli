@@ -9,7 +9,10 @@ pub struct Opts {
 
 #[derive(clap::Subcommand)]
 pub enum SubCommand {
+    #[command(name = "csv", about = "A csv command", long_about = None)]
     Csv(CsvOptions),
+    #[command(name = "genpass", about = "A genpass command", long_about = None)]
+    GenPass(GenPassOptions),
 }
 
 #[derive(Debug,Clone,Copy)]
@@ -20,7 +23,6 @@ pub enum OutputFormat {
 }
 
 #[derive(clap::Parser)]
-#[command(name = "csv", about = "A csv command", long_about = None)]
 pub struct CsvOptions {
     #[arg(short, long, required = true, help = "The input csv file", value_parser = validate_file)]
     pub input: String,
@@ -38,6 +40,21 @@ pub struct CsvOptions {
     #[arg(long, default_value = ",", help = "The delimiter")]
     pub delimiter: String,
 }
+
+#[derive(clap::Parser, Debug)]
+pub struct GenPassOptions {
+    #[arg(short,long, default_value_t = 16, help = "The length of the password")]
+    pub length: u8,
+    #[arg(long, default_value_t = true, help = "Include uppercase letters")]
+    pub uppercase: bool,
+    #[arg(long, default_value_t = true, help = "Include lowercase letters")]
+    pub lowercase: bool,
+    #[arg(long, default_value_t = true, help = "Include numbers")]
+    pub numbers: bool,
+    #[arg(long, default_value_t = true, help = "Include symbols")]
+    pub symbols: bool,
+}
+
 
 fn validate_file(filename: &str) -> Result<String, &'static str> {
     if Path::new(filename).exists() {

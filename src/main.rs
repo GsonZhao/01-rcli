@@ -1,5 +1,5 @@
 use clap::Parser;
-use rcli::{process_csv, Opts, SubCommand};
+use rcli::{process_csv, process_genpass, SubCommand, Opts};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opts = Opts::parse();
@@ -13,6 +13,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             process_csv(&opts.input, &output, opts.format)?;
             Ok(())
+        }
+        SubCommand::GenPass(opts) => {
+            let password = process_genpass(opts.length, opts.uppercase, opts.lowercase, opts.numbers, opts.symbols);
+            println!("{}", password);
+            Ok(()) 
         }
     }
 }
