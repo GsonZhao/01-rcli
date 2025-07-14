@@ -1,8 +1,13 @@
+mod b64;
 mod csv;
 mod genpass;
 
+use std::path::Path;
+
 use csv::CsvOptions;
 use genpass::GenPassOptions;
+
+pub use b64::{B64Format, B64SubCommand};
 
 pub use csv::OutputFormat;
 
@@ -19,4 +24,14 @@ pub enum SubCommand {
     Csv(CsvOptions),
     #[command(name = "genpass", about = "A genpass command", long_about = None)]
     GenPass(GenPassOptions),
+    #[command(subcommand, name = "base64", about = "A base64 command", long_about = None)]
+    B64(B64SubCommand),
+}
+
+fn verify_input_file(filename: &str) -> Result<String, &'static str> {
+    if filename == "-" || Path::new(filename).exists() {
+        Ok(filename.to_string())
+    } else {
+        Err("File does not exist")
+    }
 }

@@ -1,4 +1,6 @@
-use std::{fmt::Display, path::Path, str::FromStr};
+use std::{fmt::Display, str::FromStr};
+
+use super::verify_input_file;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -9,7 +11,7 @@ pub enum OutputFormat {
 
 #[derive(clap::Parser)]
 pub struct CsvOptions {
-    #[arg(short, long, required = true, help = "The input csv file", value_parser = validate_file)]
+    #[arg(short, long, required = true, help = "The input csv file", value_parser = verify_input_file)]
     pub input: String,
     #[arg(short, long, help = "The output csv file")]
     pub output: Option<String>,
@@ -20,14 +22,6 @@ pub struct CsvOptions {
     pub header: bool,
     #[arg(long, default_value = ",", help = "The delimiter")]
     pub delimiter: String,
-}
-
-fn validate_file(filename: &str) -> Result<String, &'static str> {
-    if Path::new(filename).exists() {
-        Ok(filename.to_string())
-    } else {
-        Err("File does not exist")
-    }
 }
 
 fn parse_format(format: &str) -> Result<OutputFormat, anyhow::Error> {

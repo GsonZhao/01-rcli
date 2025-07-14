@@ -1,5 +1,7 @@
 use clap::Parser;
-use rcli::{process_csv, process_genpass, Opts, SubCommand};
+use rcli::{
+    process_csv, process_decode, process_encode, process_genpass, B64SubCommand, Opts, SubCommand,
+};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opts = Opts::parse();
@@ -23,6 +25,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 opts.symbols,
             );
             println!("{password}");
+            Ok(())
+        }
+        SubCommand::B64(command) => {
+            match command {
+                B64SubCommand::Encode(opts) => {
+                    process_encode(&opts.input, &opts.format)?;
+                }
+                B64SubCommand::Decode(opts) => {
+                    process_decode(&opts.input, &opts.format)?;
+                }
+            }
             Ok(())
         }
     }
