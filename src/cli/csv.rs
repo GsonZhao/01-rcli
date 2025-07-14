@@ -1,20 +1,5 @@
 use std::{fmt::Display, path::Path, str::FromStr};
 
-#[derive(clap::Parser)]
-#[command(name = "rcli", about = "A rust command line interface", long_about = None)]
-pub struct Opts {
-    #[command(subcommand)]
-    pub command: SubCommand,
-}
-
-#[derive(clap::Subcommand)]
-pub enum SubCommand {
-    #[command(name = "csv", about = "A csv command", long_about = None)]
-    Csv(CsvOptions),
-    #[command(name = "genpass", about = "A genpass command", long_about = None)]
-    GenPass(GenPassOptions),
-}
-
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
     Json,
@@ -35,20 +20,6 @@ pub struct CsvOptions {
     pub header: bool,
     #[arg(long, default_value = ",", help = "The delimiter")]
     pub delimiter: String,
-}
-
-#[derive(clap::Parser, Debug)]
-pub struct GenPassOptions {
-    #[arg(short, long, default_value_t = 16, help = "The length of the password")]
-    pub length: u8,
-    #[arg(long, default_value_t = true, help = "Include uppercase letters")]
-    pub uppercase: bool,
-    #[arg(long, default_value_t = true, help = "Include lowercase letters")]
-    pub lowercase: bool,
-    #[arg(long, default_value_t = true, help = "Include numbers")]
-    pub numbers: bool,
-    #[arg(long, default_value_t = true, help = "Include symbols")]
-    pub symbols: bool,
 }
 
 fn validate_file(filename: &str) -> Result<String, &'static str> {
