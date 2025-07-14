@@ -39,15 +39,19 @@ jobs:
         run: cargo clippy --all-targets --all-features --tests --benches -- -D warnings
       - name: Execute rust tests
         run: cargo nextest run --all-features --no-tests pass
-      - name: Generate a changelog
-        uses: orhun/git-cliff-action@v2
-        id: git-cliff
+      - name: Install git-cliff
         if: startsWith(github.ref, 'refs/tags/')
-        with:
-          config: cliff.toml
-          args: -vv --latest --strip header
-        env:
-          OUTPUT: CHANGES.md
+        run: |
+          curl -L https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-1.4.0-x86_64-unknown-linux-gnu.tar.gz | tar -xz
+          sudo mv git-cliff /usr/local/bin/
+      - name: Generate a changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        id: git-cliff
+        run: |
+          git-cliff -vv --latest --strip header --config cliff.toml > CHANGES.md
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGES.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
