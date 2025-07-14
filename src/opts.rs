@@ -15,7 +15,7 @@ pub enum SubCommand {
     GenPass(GenPassOptions),
 }
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
     Json,
     Yaml,
@@ -26,11 +26,7 @@ pub enum OutputFormat {
 pub struct CsvOptions {
     #[arg(short, long, required = true, help = "The input csv file", value_parser = validate_file)]
     pub input: String,
-    #[arg(
-        short,
-        long,
-        help = "The output csv file"
-    )]
+    #[arg(short, long, help = "The output csv file")]
     pub output: Option<String>,
 
     #[arg(long, value_parser = parse_format, default_value = "json", help = "The output format")]
@@ -43,7 +39,7 @@ pub struct CsvOptions {
 
 #[derive(clap::Parser, Debug)]
 pub struct GenPassOptions {
-    #[arg(short,long, default_value_t = 16, help = "The length of the password")]
+    #[arg(short, long, default_value_t = 16, help = "The length of the password")]
     pub length: u8,
     #[arg(long, default_value_t = true, help = "Include uppercase letters")]
     pub uppercase: bool,
@@ -54,7 +50,6 @@ pub struct GenPassOptions {
     #[arg(long, default_value_t = true, help = "Include symbols")]
     pub symbols: bool,
 }
-
 
 fn validate_file(filename: &str) -> Result<String, &'static str> {
     if Path::new(filename).exists() {
@@ -68,7 +63,7 @@ fn parse_format(format: &str) -> Result<OutputFormat, anyhow::Error> {
     format.parse()
 }
 
-impl FromStr for OutputFormat{
+impl FromStr for OutputFormat {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {

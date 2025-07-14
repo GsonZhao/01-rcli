@@ -37,7 +37,7 @@ pub fn process_csv(input: &str, output: &str, format: OutputFormat) -> Result<()
             // TOML不支持数组作为顶级结构，需要包装在对象中
             let wrapper = std::collections::HashMap::from([("data".to_string(), ret)]);
             toml::to_string(&wrapper)?
-        },
+        }
     };
 
     std::fs::write(output, content)?;
