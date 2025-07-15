@@ -35,3 +35,14 @@ fn verify_input_file(filename: &str) -> Result<String, &'static str> {
         Err("File does not exist")
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_verify_input_file() {
+        let filename = "Cargo.toml";
+        assert!(verify_input_file(filename).is_ok());
+    }
+}
