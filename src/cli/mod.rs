@@ -1,6 +1,7 @@
 mod b64;
 mod csv;
 mod genpass;
+mod text;
 
 use std::path::Path;
 
@@ -8,6 +9,7 @@ use csv::CsvOptions;
 use genpass::GenPassOptions;
 
 pub use b64::{B64Format, B64SubCommand};
+pub use text::{TextFormat, TextSubCommand};
 
 pub use csv::OutputFormat;
 
@@ -26,6 +28,8 @@ pub enum SubCommand {
     GenPass(GenPassOptions),
     #[command(subcommand, name = "base64", about = "A base64 command", long_about = None)]
     B64(B64SubCommand),
+    #[command(subcommand,name = "text", about = "A text command", long_about = None)]
+    Text(TextSubCommand),
 }
 
 fn verify_input_file(filename: &str) -> Result<String, &'static str> {
