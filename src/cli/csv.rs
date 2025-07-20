@@ -1,6 +1,6 @@
 use std::{fmt::Display, str::FromStr};
 
-use super::verify_input_file;
+use super::verify_file;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -11,7 +11,7 @@ pub enum OutputFormat {
 
 #[derive(clap::Parser)]
 pub struct CsvOptions {
-    #[arg(short, long, required = true, help = "The input csv file", value_parser = verify_input_file)]
+    #[arg(short, long, required = true, help = "The input csv file", value_parser = verify_file)]
     pub input: String,
     #[arg(short, long, help = "The output csv file")]
     pub output: Option<String>,
