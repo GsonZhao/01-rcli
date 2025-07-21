@@ -1,6 +1,7 @@
 mod b64;
 mod csv;
 mod genpass;
+mod http_server;
 mod text;
 
 use std::path::{Path, PathBuf};
@@ -9,6 +10,7 @@ use csv::CsvOptions;
 use genpass::GenPassOptions;
 
 pub use b64::{B64Format, B64SubCommand};
+pub use http_server::HttpSubcommand;
 pub use text::{TextFormat, TextSubCommand};
 
 pub use csv::OutputFormat;
@@ -30,6 +32,8 @@ pub enum SubCommand {
     B64(B64SubCommand),
     #[command(subcommand,name = "text", about = "A text command", long_about = None)]
     Text(TextSubCommand),
+    #[command(subcommand, name = "http", about = "A http file server", long_about = None)]
+    Http(HttpSubcommand),
 }
 
 fn verify_file(filename: &str) -> Result<String, &'static str> {
