@@ -1,0 +1,8 @@
+### 启动http服务
+
+GET http://192.168.53.137:8080/
+
+
+### get file
+GET http://192.168.53.137:8080/Cargo.toml
+Range: bytes=0-10

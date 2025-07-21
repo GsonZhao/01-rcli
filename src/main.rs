@@ -4,10 +4,15 @@ use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
 use clap::Parser;
 use rcli::{
     get_content, get_reader, process_csv, process_decode, process_encode, process_genkey,
-    process_genpass, process_sign, process_verify, B64SubCommand, Opts, SubCommand, TextSubCommand,
+    process_genpass, process_http_server, process_sign, process_verify, B64SubCommand,
+    HttpSubcommand, Opts, SubCommand, TextSubCommand,
 };
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 初始化tracing
+    tracing_subscriber::fmt::init();
+
     let opts = Opts::parse();
     match opts.command {
         SubCommand::Csv(opts) => {
@@ -70,6 +75,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     for (name, value) in key {
                         fs::write(opts.output.join(name), value)?;
                     }
+                }
+            }
+            Ok(())
+        }
+        SubCommand::Http(command) => {
+            match command {
+                HttpSubcommand::Serve(opts) => {
+                    process_http_server(opts.path, opts.port).await?;
                 }
             }
             Ok(())
