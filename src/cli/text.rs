@@ -1,8 +1,15 @@
-use std::{fmt::Display, path::PathBuf, str::FromStr};
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+use std::{fmt::Display, fs, path::PathBuf, str::FromStr};
 
-use crate::cli::verify_path;
+use crate::{
+    cli::verify_path, get_content, get_reader, process_genkey, process_sign, process_verify,
+    CmdExecutor,
+};
+use anyhow::Result;
+use enum_dispatch::enum_dispatch;
 
 #[derive(clap::Subcommand)]
+#[enum_dispatch(CmdExecutor)]
 pub enum TextSubCommand {
     #[command(name = "sign", about = "Sign a text", long_about = None)]
     Sign(SignOptions),
@@ -40,6 +47,53 @@ pub struct GenKeyOptions {
     pub format: TextFormat,
     #[arg(short, long, value_parser = verify_path)]
     pub output: PathBuf,
+}
+
+// impl CmdExecutor for TextSubCommand {
+//     async fn execute(self) -> Result<()> {
+//         match self {
+//             TextSubCommand::Sign(opts) => opts.execute().await,
+//             TextSubCommand::Verify(opts) => opts.execute().await,
+//             TextSubCommand::GenKey(opts) => opts.execute().await,
+//         }
+//     }
+// }
+
+impl CmdExecutor for SignOptions {
+    async fn execute(self) -> Result<()> {
+        let mut reader = get_reader(&self.input)?;
+        let key = get_content(&self.key)?;
+        let sig = process_sign(&mut reader, &key, self.format)?;
+        let encoded = URL_SAFE_NO_PAD.encode(&sig);
+        print!("{encoded}");
+        Ok(())
+    }
+}
+
+impl CmdExecutor for VerifyOptions {
+    async fn execute(self) -> Result<()> {
+        let mut reader = get_reader(&self.input)?;
+        let key = get_content(&self.key)?;
+        let signature = get_content(&self.signature)?;
+        let sig = URL_SAFE_NO_PAD.decode(signature)?;
+        let result = process_verify(&mut reader, &key, &sig, self.format)?;
+        if result {
+            println!("✓ Signature verified");
+        } else {
+            println!("⚠ Signature not verified");
+        }
+        Ok(())
+    }
+}
+
+impl CmdExecutor for GenKeyOptions {
+    async fn execute(self) -> Result<()> {
+        let key = process_genkey(self.format)?;
+        for (name, value) in key {
+            fs::write(self.output.join(name), value)?;
+        }
+        Ok(())
+    }
 }
 
 #[derive(clap::Parser, Clone, Copy, Debug)]

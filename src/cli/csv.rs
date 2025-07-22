@@ -1,6 +1,9 @@
 use std::{fmt::Display, str::FromStr};
 
+use crate::{process_csv, CmdExecutor};
+
 use super::verify_file;
+use anyhow::Result;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -38,6 +41,19 @@ impl FromStr for OutputFormat {
             "toml" => Ok(OutputFormat::Toml),
             _ => Err(anyhow::anyhow!("Invalid output format: {}", s)),
         }
+    }
+}
+
+impl CmdExecutor for CsvOptions {
+    async fn execute(self) -> Result<()> {
+        let output = if let Some(output) = self.output {
+            output
+        } else {
+            format!("output.{}", self.format)
+        };
+
+        process_csv(&self.input, &output, self.format)?;
+        Ok(())
     }
 }
 

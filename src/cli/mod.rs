@@ -6,14 +6,18 @@ mod text;
 
 use std::path::{Path, PathBuf};
 
-use csv::CsvOptions;
-use genpass::GenPassOptions;
+use enum_dispatch::enum_dispatch;
 
-pub use b64::{B64Format, B64SubCommand};
+pub use csv::CsvOptions;
+
+pub use b64::{B64Format, B64SubCommand, DecodeOptions, EncodeOptions};
 pub use http_server::HttpSubcommand;
 pub use text::{TextFormat, TextSubCommand};
 
 pub use csv::OutputFormat;
+pub use genpass::GenPassOptions;
+pub use http_server::HttpServerOptions;
+pub use text::{GenKeyOptions, SignOptions, VerifyOptions};
 
 #[derive(clap::Parser)]
 #[command(name = "rcli", about = "A rust command line interface", long_about = None)]
@@ -23,6 +27,7 @@ pub struct Opts {
 }
 
 #[derive(clap::Subcommand)]
+#[enum_dispatch(CmdExecutor)]
 pub enum SubCommand {
     #[command(name = "csv", about = "A csv command", long_about = None)]
     Csv(CsvOptions),
